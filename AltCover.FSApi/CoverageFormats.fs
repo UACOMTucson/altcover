@@ -98,7 +98,7 @@ module CoverageFormats =
     dec.Standalone <- null
 
     let converted = XmlUtilities.ToXmlDocument rewrite
-    AltCover.Runner.PostProcess null AltCover.Base.ReportFormat.OpenCover converted
+    AltCover.Runner.PostProcess null AltCover.Recorder.ReportFormat.OpenCover converted
     converted
 
   [<SuppressMessage("Microsoft.Design", "CA1059",

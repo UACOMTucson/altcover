@@ -76,6 +76,8 @@ open System.Runtime.CompilerServices
 #if DEBUG
 [<assembly: AssemblyConfiguration("Debug {0}")>]
 #if NETSTANDARD2_0
+[<assembly: InternalsVisibleTo("AltCover.Tests")>]
+[<assembly: InternalsVisibleTo("AltCover.XTests")>]
 [<assembly: InternalsVisibleTo("AltCover.Shadow.Adapter")>]
 [<assembly: InternalsVisibleTo("AltCover.Shadow.Tests")>]
 #else
@@ -101,6 +103,25 @@ open System.Runtime.CompilerServices
 #else
 [<assembly: AssemblyConfiguration("Release {0}")>]
 #endif
+
+#if RUNNER
+#else
+#if NETSTANDARD2_0
+[<assembly: InternalsVisibleTo("AltCover")>]
+[<assembly: InternalsVisibleTo("AltCover.FSApi")>]
+[<assembly: InternalsVisibleTo("AltCover.PowerShell")>]
+#else
+[<assembly: InternalsVisibleTo("AltCover, PublicKey={1}")>]
+[<assembly: InternalsVisibleTo("AltCover.FSApi, PublicKey={1}")>]
+[<assembly: InternalsVisibleTo("AltCover.PowerShell, PublicKey={1}")>]
+#if DEBUG
+[<assembly: InternalsVisibleTo("AltCover, PublicKey={2}")>]
+[<assembly: InternalsVisibleTo("AltCover.FSApi, PublicKey={2}")>]
+[<assembly: InternalsVisibleTo("AltCover.PowerShell, PublicKey={2}")>]
+#endif
+#endif
+#endif
+
 do ()"""
   let prefix =
     [| 0x00uy; 0x24uy; 0x00uy; 0x00uy; 0x04uy

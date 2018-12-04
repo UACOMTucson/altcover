@@ -72,7 +72,8 @@ type AltCoverCoreTests() =
            | AltCover.Recorder.Tag.Both ->
              Adapter.NewBoth (formatter.ReadInt64()) (formatter.ReadInt32())
 #else
-                                       | AltCover.Recorder.Tag.Both -> Both (formatter.ReadInt64(), formatter.ReadInt32())
+                                       | AltCover.Recorder.Tag.Both -> Both { Time = formatter.ReadInt64()
+                                                                              Call = formatter.ReadInt32()}
 #endif
            | _ -> Null)
           |> hits.Add
@@ -131,7 +132,7 @@ type AltCoverCoreTests() =
 #if NET4
           ("name", 24, Adapter.NewBoth 42L 23)
 #else
-          ("name", 24, Both (42L, 23))
+          ("name", 24, Both { Time = 42L; Call = 23 })
 #endif
 
           ("name", 23, Call 5) ]

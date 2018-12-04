@@ -7,7 +7,6 @@ open System.IO
 open System.Linq
 open System.Reflection
 
-open AltCover.Base
 open Augment
 open Mono.Cecil
 open Mono.Options
@@ -189,7 +188,7 @@ module internal Main =
                                 (CultureInfo.CurrentCulture,
                                  CommandLine.resources.GetString "MultiplesNotAllowed",
                                  "--opencover") :: CommandLine.error
-       else Visitor.reportFormat <- Some ReportFormat.OpenCover))
+       else Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover))
       ("inplace",
        (fun _ ->
        if Visitor.inplace then
@@ -419,7 +418,7 @@ module internal Main =
                 (CommandLine.resources.GetString "reportingto"), report)
           let reporter, document =
             match Visitor.ReportKind() with
-            | ReportFormat.OpenCover -> OpenCover.ReportGenerator()
+            | Recorder.ReportFormat.OpenCover -> OpenCover.ReportGenerator()
             | _ -> Report.ReportGenerator()
 
           let visitors =

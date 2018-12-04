@@ -59,7 +59,7 @@ module Instance =
   /// <summary>
   /// Accumulation of visit records
   /// </summary>
-  let internal Visits = new Dictionary<string, Dictionary<int, int * Track list>>()
+  let internal Visits = new Dictionary<string, Dictionary<int, PointVisits>>()
 
   let internal Samples = new Dictionary<string, Dictionary<int, bool>>()
   let internal buffer = List<Carrier>()
@@ -165,12 +165,12 @@ module Instance =
       match Visits.Count with
       | 0 -> ()
       | _ ->
-        let counts = Dictionary<string, Dictionary<int, int * Track list>> Visits
+        let counts = Dictionary<string, Dictionary<int, PointVisits>> Visits
         Visits.Clear()
         WithMutex
           (fun own ->
           let delta =
-            Counter.DoFlush ignore (fun _ _ -> ()) own counts CoverageFormat ReportFile
+            Counter.DoFlush (PostProcessor ignore) (PointProcessor ignore) own counts CoverageFormat ReportFile
               None
           GetResource "Coverage statistics flushing took {0:N} seconds"
           |> Option.iter (fun s -> Console.Out.WriteLine(s, delta.TotalSeconds))))
@@ -233,7 +233,8 @@ module Instance =
       | (0L, 0) -> Null
       | (t, 0) -> Time(t * (clock() / t))
       | (0L, n) -> Call n
-      | (t, n) -> Both(t * (clock() / t), n)
+      | (t, n) -> Both { Time = t * (clock() / t)
+                         Call = n }
     else Null
 
   let internal PayloadControl = PayloadSelection Clock

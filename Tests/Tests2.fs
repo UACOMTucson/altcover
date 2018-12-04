@@ -425,27 +425,27 @@ type AltCoverTests2() =
       let save3 = Visitor.interval
       Visitor.TrackingNames.Clear()
       try
-        Visitor.reportFormat <- Some AltCover.Base.ReportFormat.OpenCover
+        Visitor.reportFormat <- Some AltCover.Recorder.ReportFormat.OpenCover
         Visitor.interval <- Some 1234567890
         Assert.That
           (Visitor.ReportFormat(),
-           Is.EqualTo AltCover.Base.ReportFormat.OpenCoverWithTracking)
+           Is.EqualTo AltCover.Recorder.ReportFormat.OpenCoverWithTracking)
         Visitor.interval <- None
         Visitor.TrackingNames.Add("dummy")
         Assert.That
           (Visitor.ReportFormat(),
-           Is.EqualTo AltCover.Base.ReportFormat.OpenCoverWithTracking)
+           Is.EqualTo AltCover.Recorder.ReportFormat.OpenCoverWithTracking)
         Visitor.TrackingNames.Clear()
         Assert.That
-          (Visitor.ReportFormat(), Is.EqualTo AltCover.Base.ReportFormat.OpenCover)
-        Visitor.reportFormat <- Some AltCover.Base.ReportFormat.NCover
+          (Visitor.ReportFormat(), Is.EqualTo AltCover.Recorder.ReportFormat.OpenCover)
+        Visitor.reportFormat <- Some AltCover.Recorder.ReportFormat.NCover
         Visitor.interval <- Some 1234567890
-        Assert.That(Visitor.ReportFormat(), Is.EqualTo AltCover.Base.ReportFormat.NCover)
+        Assert.That(Visitor.ReportFormat(), Is.EqualTo AltCover.Recorder.ReportFormat.NCover)
         Visitor.interval <- None
         Visitor.TrackingNames.Add("dummy")
-        Assert.That(Visitor.ReportFormat(), Is.EqualTo AltCover.Base.ReportFormat.NCover)
+        Assert.That(Visitor.ReportFormat(), Is.EqualTo AltCover.Recorder.ReportFormat.NCover)
         Visitor.TrackingNames.Clear()
-        Assert.That(Visitor.ReportFormat(), Is.EqualTo AltCover.Base.ReportFormat.NCover)
+        Assert.That(Visitor.ReportFormat(), Is.EqualTo AltCover.Recorder.ReportFormat.NCover)
       finally
         Visitor.reportFormat <- save2
         Visitor.interval <- save3
@@ -482,7 +482,7 @@ type AltCoverTests2() =
         let save3 = Visitor.interval
         try
           Visitor.reportPath <- Some unique
-          Visitor.reportFormat <- Some AltCover.Base.ReportFormat.OpenCover
+          Visitor.reportFormat <- Some AltCover.Recorder.ReportFormat.OpenCover
           Visitor.interval <- Some 1234567890
           Visitor.single <- true
           let prepared = Instrument.PrepareAssembly path
@@ -509,11 +509,11 @@ type AltCoverTests2() =
             let report = proxyObject.InvokeMethod("get_ReportFile",[||]).ToString()
             Assert.That (report, Is.EqualTo (Path.GetFullPath unique))
             let report2 = proxyObject.InvokeMethod("get_CoverageFormat",[||]) :?> System.Int32
-            Assert.That (report2, AltCover.Base.ReportFormat.OpenCoverWithTracking |> int |> Is.EqualTo)
+            Assert.That (report2, AltCover.Recorder.ReportFormat.OpenCoverWithTracking |> int |> Is.EqualTo)
             let report3 = proxyObject.InvokeMethod("get_Timer",[||]) :?> System.Int64
             Assert.That (report3, 1234567890L |> Is.EqualTo)
             let report4 = proxyObject.InvokeMethod("get_Sample",[||]) :?> System.Int32
-            Assert.That (report4, AltCover.Base.Sampling.Single |> int |> Is.EqualTo)
+            Assert.That (report4, AltCover.Recorder.Sampling.Single |> int |> Is.EqualTo)
           finally
             AppDomain.Unload(ad)
         finally
@@ -954,7 +954,7 @@ type AltCoverTests2() =
         |> Seq.find (fun m -> m.Name = "as_bar")
       Visitor.Visit [] [] // cheat reset
       try
-        Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+        Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
         let branches =
           Visitor.Deeper <| Node.Method(method, Inspect.Instrument, None)
           |> Seq.map (fun n ->
@@ -993,9 +993,9 @@ type AltCoverTests2() =
         Assert.That(switches.[1], Is.EqualTo inject.[0])
         Assert.That(inject.[0].Operand, Is.EqualTo inject.[5])
         Assert.That
-          ((inject.[2].Operand :?> int) &&& Base.Counter.BranchMask, Is.EqualTo 1)
+          ((inject.[2].Operand :?> int) &&& Recorder.Counter.BranchMask, Is.EqualTo 1)
         Assert.That
-          ((inject.[6].Operand :?> int) &&& Base.Counter.BranchMask, Is.EqualTo 0)
+          ((inject.[6].Operand :?> int) &&& Recorder.Counter.BranchMask, Is.EqualTo 0)
       finally
         Visitor.NameFilters.Clear()
         Visitor.reportFormat <- None
@@ -1018,7 +1018,7 @@ type AltCoverTests2() =
         |> Seq.find (fun m -> m.Name = "Main")
       Visitor.Visit [] [] // cheat reset
       try
-        Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+        Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
         let branches =
           Visitor.Deeper <| Node.Method(method, Inspect.Instrument, None)
           |> Seq.map (fun n ->
@@ -1051,9 +1051,9 @@ type AltCoverTests2() =
         Assert.That(inject.Length, Is.EqualTo 8)
         Assert.That(inject.[0].Operand, Is.EqualTo inject.[5])
         Assert.That
-          ((inject.[2].Operand :?> int) &&& Base.Counter.BranchMask, Is.EqualTo 1)
+          ((inject.[2].Operand :?> int) &&& Recorder.Counter.BranchMask, Is.EqualTo 1)
         Assert.That
-          ((inject.[6].Operand :?> int) &&& Base.Counter.BranchMask, Is.EqualTo 0)
+          ((inject.[6].Operand :?> int) &&& Recorder.Counter.BranchMask, Is.EqualTo 0)
       finally
         Visitor.NameFilters.Clear()
         Visitor.reportFormat <- None

@@ -106,13 +106,13 @@ module OpenCoverUtilities =
     // Validate
     let xmlDocument = new XmlDocument()
     navigable.CreateNavigator().ReadSubtree() |> xmlDocument.Load
-    xmlDocument.Schemas <- XmlUtilities.LoadSchema AltCover.Base.ReportFormat.OpenCover
+    xmlDocument.Schemas <- XmlUtilities.LoadSchema AltCover.Recorder.ReportFormat.OpenCover
     xmlDocument.Validate(null)
     // Get all the methods
     xmlDocument.SelectNodes("//Method")
     |> Seq.cast<XmlElement>
     |> Seq.iter (CompressMethod withinSequencePoint sameSpan)
     // tidy up here
-    AltCover.Runner.PostProcess null AltCover.Base.ReportFormat.OpenCover xmlDocument
+    AltCover.Runner.PostProcess null AltCover.Recorder.ReportFormat.OpenCover xmlDocument
     XmlUtilities.PrependDeclaration xmlDocument
     xmlDocument

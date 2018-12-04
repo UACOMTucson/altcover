@@ -201,8 +201,8 @@ module internal Instrument =
       [ (// set the coverage file format and sampling strategy
          "get_CoverageFormat", Visitor.ReportFormat() |> int)
         ("get_Sample",
-         (if Visitor.single then Base.Sampling.Single
-          else Base.Sampling.All)
+         (if Visitor.single then Recorder.Sampling.Single
+          else Recorder.Sampling.All)
          |> int) ]
       |> List.iter (fun (property, value) ->
            let pathGetterDef =
@@ -533,7 +533,7 @@ module internal Instrument =
       | _ -> state
     { restate with ModuleId =
                      match Visitor.ReportKind() with
-                     | AltCover.Base.ReportFormat.OpenCover ->
+                     | AltCover.Recorder.ReportFormat.OpenCover ->
                        KeyStore.HashFile m.FileName
                      | _ -> m.Mvid.ToString() }
 
@@ -564,7 +564,7 @@ module internal Instrument =
                           |> isNull
                           |> not
     then
-      let point = (branch.Uid ||| Base.Counter.BranchFlag)
+      let point = (branch.Uid ||| Recorder.Counter.BranchFlag)
       let instrument instruction =
         InsertVisit instruction state.MethodWorker state.RecordingMethodRef.Visit
           state.ModuleId point

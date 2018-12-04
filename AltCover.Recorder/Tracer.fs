@@ -29,6 +29,11 @@ type Tracer =
     | null -> false
     | _ -> this.Runner
 
+  member internal this.SetSink s =
+    { this with Stream = s
+                Formatter = new BinaryWriter(s)
+                Runner = true }
+
   member this.Connect() =
     if File.Exists this.Tracer then
       Seq.initInfinite (fun i -> Path.ChangeExtension(this.Tracer, sprintf ".%d.acv" i))
@@ -36,9 +41,7 @@ type Tracer =
       |> Seq.map (fun f ->
            let fs = File.OpenWrite f
            let s = new DeflateStream(fs, CompressionMode.Compress)
-           { this with Stream = s
-                       Formatter = new BinaryWriter(s)
-                       Runner = true })
+           this.SetSink s)
       |> Seq.head
     else this
 
@@ -59,21 +62,21 @@ type Tracer =
     | Call t ->
       this.Formatter.Write(Tag.Call |> byte)
       this.Formatter.Write(t)
-    | Both(t', t) ->
+    | Both pair ->
       this.Formatter.Write(Tag.Both |> byte)
-      this.Formatter.Write(t')
-      this.Formatter.Write(t)
+      this.Formatter.Write(pair.Time)
+      this.Formatter.Write(pair.Call)
 
-  member internal this.CatchUp(visits : Dictionary<string, Dictionary<int, int * Track list>>) =
+  member internal this.CatchUp(visits : Dictionary<string, Dictionary<int, PointVisits>>) =
     let empty = Null
     visits.Keys
     |> Seq.iter (fun moduleId ->
          visits.[moduleId].Keys
          |> Seq.iter (fun hitPointId ->
-              let n, l = visits.[moduleId].[hitPointId]
+              let c = visits.[moduleId].[hitPointId]
               let push = this.Push moduleId hitPointId
-              [ seq { 1..n } |> Seq.map (fun _ -> empty)
-                l |> List.toSeq ]
+              [ seq { 1..c.Count } |> Seq.map (fun _ -> empty)
+                c.Context |> List.toSeq ]
               |> Seq.concat
               |> Seq.iter push))
     visits.Clear()

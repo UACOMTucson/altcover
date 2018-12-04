@@ -72,9 +72,6 @@
       <Link>VisibleToTest.fs</Link>
     </Compile>
     <Compile Include="Augment.fs" />
-    <Compile Include="..\AltCover.Recorder\Base.fs">
-      <Link>Base.fs</Link>
-    </Compile>
     <Compile Include="ProgramDatabase.fs" />
     <Compile Include="Filter.fs" />
     <Compile Include="Visitor.fs" />

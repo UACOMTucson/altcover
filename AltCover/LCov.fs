@@ -33,7 +33,7 @@ module internal LCov =
   let multiSortByNameAndStartLine (l : (string * XElement seq) seq) =
     multiSort lineOfMethod l
 
-  let ConvertReport (report : XDocument) (format : Base.ReportFormat) (stream : Stream) =
+  let ConvertReport (report : XDocument) (format : Recorder.ReportFormat) (stream : Stream) =
     DoWith (fun () -> new StreamWriter(stream)) (fun writer ->
       //If available, a tracefile begins with the testname which
       //   is stored in the following format:
@@ -41,7 +41,7 @@ module internal LCov =
       //     TN:<test name>
       writer.WriteLine "TN:"
       match format with
-      | Base.ReportFormat.NCover ->
+      | Recorder.ReportFormat.NCover ->
         report.Descendants(X "method")
         |> Seq.filter (fun m ->
              m.Descendants(X "seqpnt")
@@ -284,6 +284,6 @@ module internal LCov =
              // end_of_record
              writer.WriteLine "end_of_record"))
 
-  let Summary (report : XDocument) (format : Base.ReportFormat) result =
+  let Summary (report : XDocument) (format : Recorder.ReportFormat) result =
     DoWith (fun () -> File.OpenWrite(!path |> Option.get)) (ConvertReport report format)
     result

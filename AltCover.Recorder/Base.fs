@@ -1,8 +1,4 @@
-#if RUNNER
-namespace AltCover.Base
-#else
 namespace AltCover.Recorder
-#endif
 
 open System
 open System.Collections.Generic
@@ -44,23 +40,90 @@ type
 #if NETSTANDARD2_0
 [<System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage>]
 #else
-#if NETCOREAPP2_0
+[<System.Runtime.InteropServices.ProgIdAttribute("ExcludeFromCodeCoverage hack for OpenCover issue 615")>]
+#endif
+type internal Pair =
+  { Time : int64
+    Call : int }
+  static member Build time call =
+    { Time = time
+      Call = call }
+
+#if NETSTANDARD2_0
 [<System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage>]
 #else
 [<System.Runtime.InteropServices.ProgIdAttribute("ExcludeFromCodeCoverage hack for OpenCover issue 615")>]
-#endif
 #endif
 type internal Track =
   | Null
   | Time of int64
   | Call of int
-  | Both of (int64 * int)
+  | Both of Pair
+
+#if NETSTANDARD2_0
+[<System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage>]
+#else
+[<System.Runtime.InteropServices.ProgIdAttribute("ExcludeFromCodeCoverage hack for OpenCover issue 615")>]
+#endif
+type internal PointVisits =
+  { Count : int
+    Context : Track list }
+  static member Default () =
+    { Count = 0
+      Context = [] }
+  member self.Visit context =
+    match context with
+    | Null -> { self with Count = self.Count + 1 }
+    | something -> { self with Context = something :: self.Context }
+  member self.Total () =
+    self.Count + self.Context.Length
+
+#if NETSTANDARD2_0
+[<System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage>]
+#else
+[<System.Runtime.InteropServices.ProgIdAttribute("ExcludeFromCodeCoverage hack for OpenCover issue 615")>]
+#endif
+[<NoComparison>]
+type internal XmlPointVisits =
+  { Element : XmlElement
+    Context : Track list }
+  static member Build e c =
+    { Element = e
+      Context = c |> Seq.toList }
+
+#if NETSTANDARD2_0
+[<System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage>]
+#else
+[<System.Runtime.InteropServices.ProgIdAttribute("ExcludeFromCodeCoverage hack for OpenCover issue 615")>]
+#endif
+[<NoComparison>]
+type internal TrackSplit =
+  { Times : int64 seq
+    Calls : int seq }
+  static member Do (ts : Track seq) =
+    let (times, calls) = ts
+                         |> Seq.map (fun t ->
+                               match t with
+                               | Track.Time x -> (Some x, None)
+                               | Track.Both xy -> (Some xy.Time, Some xy.Call)
+                               | Track.Call y -> (None, Some y)
+                               | _ -> (None, None))
+                         |> Seq.toList
+                         |> List.unzip
+    { Times = times |> Seq.choose id
+      Calls = calls |> Seq.choose id}
+
+type internal PostProcessor = delegate of XmlDocument -> Unit
+type internal PointProcessor = delegate of XmlPointVisits -> unit
 
 module Assist =
   let internal SafeDispose x =
     try
       (x :> IDisposable).Dispose()
     with :? ObjectDisposedException -> ()
+
+  let NoneString () : string option = None
+  let SomeValue s  : string option = Some s
 
 module Counter =
   /// <summary>
@@ -129,9 +192,9 @@ module Counter =
   /// </summary>
   /// <param name="hitCounts">The coverage results to incorporate</param>
   /// <param name="coverageFile">The coverage file to update as a stream</param>
-  let internal UpdateReport (postProcess : XmlDocument -> unit)
-      (pointProcess : XmlElement -> Track list -> unit) own
-      (counts : Dictionary<string, Dictionary<int, int * Track list>>) format coverageFile
+  let internal UpdateReport (postProcess : PostProcessor)
+      (pointProcess : PointProcessor) own
+      (counts : Dictionary<string, Dictionary<int, PointVisits>>) format coverageFile
       (outputFile : Stream) =
     let flushStart = DateTime.UtcNow
     let coverageDocument = ReadXDocument coverageFile
@@ -197,11 +260,11 @@ module Counter =
                   (pt.GetAttribute(v), System.Globalization.NumberStyles.Integer,
                    System.Globalization.CultureInfo.InvariantCulture) |> snd
               // Treat -ve visit counts (an exemption added in analysis) as zero
-              let (count, l) = moduleHits.[counter]
-              let visits = (max 0 vc) + count + l.Length
+              let c = moduleHits.[counter]
+              let visits = (max 0 vc) + c.Count + c.Context.Length
               pt.SetAttribute(v, visits.ToString(CultureInfo.InvariantCulture))
-              pointProcess pt l))
-    postProcess coverageDocument
+              pointProcess.Invoke {Element = pt; Context = c.Context}))
+    postProcess.Invoke coverageDocument
 
     // Save modified xml to a file
     outputFile.Seek(0L, SeekOrigin.Begin) |> ignore
@@ -232,13 +295,11 @@ module Counter =
       UpdateReport postProcess pointProcess own counts format coverageFile outputFile
     TimeSpan(DateTime.UtcNow.Ticks - flushStart.Ticks)
 
-  let internal AddVisit (counts : Dictionary<string, Dictionary<int, int * Track list>>)
+  let internal AddVisit (counts : Dictionary<string, Dictionary<int, PointVisits>>)
       moduleId hitPointId context =
     if not (counts.ContainsKey moduleId) then
-      counts.[moduleId] <- Dictionary<int, int * Track list>()
+      counts.[moduleId] <- Dictionary<int, PointVisits>()
     if not (counts.[moduleId].ContainsKey hitPointId) then
-      counts.[moduleId].Add(hitPointId, (0, []))
-    let n, l = counts.[moduleId].[hitPointId]
-    counts.[moduleId].[hitPointId] <- match context with
-                                      | Null -> (1 + n, l)
-                                      | something -> (n, something :: l)
+      counts.[moduleId].Add(hitPointId, (PointVisits.Default()))
+    let c = counts.[moduleId].[hitPointId]
+    counts.[moduleId].[hitPointId] <- c.Visit context

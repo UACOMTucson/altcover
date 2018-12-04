@@ -49,7 +49,7 @@ type AltCoverTests() =
       |> Seq.find (fun n -> n.EndsWith("SimpleCoverage.xml", StringComparison.Ordinal))
 
     member private self.UpdateReport a b =
-      Counter.UpdateReport ignore (fun _ _ -> ()) true a ReportFormat.NCover b b |> ignore
+      Counter.UpdateReport (PostProcessor ignore) (PointProcessor ignore) true a ReportFormat.NCover b b |> ignore
 
     member self.resource2 =
       Assembly.GetExecutingAssembly().GetManifestResourceNames()
@@ -167,7 +167,7 @@ type AltCoverTests() =
           Instance.Push 6789
           // 0x1234123412341234 == 1311693406324658740
           Assert.That(Instance.PayloadSelection (fun _ -> 0x1234123412341234L) (fun _ -> 1000L) (fun _ -> true),
-                    Is.EqualTo (Both (1311693406324658000L, 6789)))
+                    Is.EqualTo (Both { Time = 1311693406324658000L; Call = 6789 }))
         finally
           Instance.Pop()
         Assert.That(Instance.PayloadSelector (fun _ -> true),
@@ -282,7 +282,7 @@ type AltCoverTests() =
       worker.Position <- 0L
       let before = XmlDocument()
       before.Load (Assembly.GetExecutingAssembly().GetManifestResourceStream(self.resource))
-      self.UpdateReport (Dictionary<string, Dictionary<int, int * Track list>>()) worker
+      self.UpdateReport (Dictionary<string, Dictionary<int, PointVisits>>()) worker
       worker.Position <- 0L
       let after = XmlDocument()
       after.Load worker
@@ -307,7 +307,7 @@ type AltCoverTests() =
       worker.Position <- 0L
       let before = XmlDocument()
       before.Load (Assembly.GetExecutingAssembly().GetManifestResourceStream(self.resource))
-      self.UpdateReport (Dictionary<string, Dictionary<int, int * Track list>>()) worker
+      self.UpdateReport (Dictionary<string, Dictionary<int, PointVisits>>()) worker
       worker.Position <- 0L
       let after = XmlDocument()
       after.Load worker
@@ -332,7 +332,7 @@ type AltCoverTests() =
       worker.Position <- 0L
       let before = XmlDocument()
       before.Load (Assembly.GetExecutingAssembly().GetManifestResourceStream(self.resource))
-      self.UpdateReport (Dictionary<string, Dictionary<int, int * Track list>>()) worker
+      self.UpdateReport (Dictionary<string, Dictionary<int, PointVisits>>()) worker
       worker.Position <- 0L
       let after = XmlDocument()
       after.Load worker
@@ -357,7 +357,7 @@ type AltCoverTests() =
       worker.Position <- 0L
       let before = XmlDocument()
       before.Load (Assembly.GetExecutingAssembly().GetManifestResourceStream(self.resource))
-      self.UpdateReport (Dictionary<string, Dictionary<int, int * Track list>>()) worker
+      self.UpdateReport (Dictionary<string, Dictionary<int, PointVisits>>()) worker
       worker.Position <- 0L
       let after = XmlDocument()
       after.Load worker
@@ -380,7 +380,7 @@ type AltCoverTests() =
       worker.Write (buffer, 0, size)
       worker.Position <- 0L
       use before = new StreamReader (Assembly.GetExecutingAssembly().GetManifestResourceStream(self.resource))
-      let item = Dictionary<string, Dictionary<int, int * Track list>>()
+      let item = Dictionary<string, Dictionary<int, PointVisits>>()
       item.Add ("not a guid", null)
       self.UpdateReport item worker
       worker.Position <- 0L
@@ -406,8 +406,8 @@ type AltCoverTests() =
       worker.Write (buffer, 0, size)
       worker.Position <- 0L
       use before = new StreamReader (Assembly.GetExecutingAssembly().GetManifestResourceStream(self.resource))
-      let item = Dictionary<string, Dictionary<int, int * Track list>>()
-      item.Add("f6e3edb3-fb20-44b3-817d-f69d1a22fc2f", Dictionary<int,int * Track list>())
+      let item = Dictionary<string, Dictionary<int, PointVisits>>()
+      item.Add("f6e3edb3-fb20-44b3-817d-f69d1a22fc2f", Dictionary<int,PointVisits>())
       self.UpdateReport item worker
       worker.Position <- 0L
       let after = new StreamReader(worker)
@@ -432,10 +432,10 @@ type AltCoverTests() =
       worker.Write (buffer, 0, size)
       worker.Position <- 0L
       use before = new StreamReader (Assembly.GetExecutingAssembly().GetManifestResourceStream(self.resource))
-      let payload = Dictionary<int,int * Track list>()
-      payload.[-1] <- (10, [])
-      payload.[100] <- (10, [])
-      let item = Dictionary<string, Dictionary<int, int * Track list>>()
+      let payload = Dictionary<int,PointVisits>()
+      payload.[-1] <- { Count = 10; Context = [] }
+      payload.[100] <- { Count = 10; Context = [] }
+      let item = Dictionary<string, Dictionary<int, PointVisits>>()
       item.Add("f6e3edb3-fb20-44b3-817d-f69d1a22fc2f", payload)
       self.UpdateReport item worker
       worker.Position <- 0L
@@ -460,10 +460,10 @@ type AltCoverTests() =
       use worker = new MemoryStream()
       worker.Write (buffer, 0, size)
       worker.Position <- 0L
-      let payload = Dictionary<int,int * Track list>()
+      let payload = Dictionary<int,PointVisits>()
       [0..9 ]
-      |> Seq.iter(fun i -> payload.[i] <- (i+1, []))
-      let item = Dictionary<string, Dictionary<int, int * Track list>>()
+      |> Seq.iter(fun i -> payload.[i] <- { Count = i + 1; Context = [] })
+      let item = Dictionary<string, Dictionary<int, PointVisits>>()
       item.Add("f6e3edb3-fb20-44b3-817d-f69d1a22fc2f", payload)
       self.UpdateReport item worker
       worker.Position <- 0L
@@ -487,14 +487,14 @@ type AltCoverTests() =
       use worker = new MemoryStream()
       worker.Write (buffer, 0, size)
       worker.Position <- 0L
-      let payload = Dictionary<int,int * Track list>()
+      let payload = Dictionary<int,PointVisits>()
       [0..9 ]
-      |> Seq.iter(fun i -> payload.[10 - i] <- (i+1, []))
+      |> Seq.iter(fun i -> payload.[10 - i] <- { Count = i + 1; Context = [] })
       [11..12]
-      |> Seq.iter(fun i -> payload.[i ||| Counter.BranchFlag] <- (i-10, []))
-      let item = Dictionary<string, Dictionary<int, int * Track list>>()
+      |> Seq.iter(fun i -> payload.[i ||| Counter.BranchFlag] <- { Count = i - 10; Context = [] })
+      let item = Dictionary<string, Dictionary<int, PointVisits>>()
       item.Add("7C-CD-66-29-A3-6C-6D-5F-A7-65-71-0E-22-7D-B2-61-B5-1F-65-9A", payload)
-      Counter.UpdateReport ignore (fun _ _ -> ()) true item ReportFormat.OpenCover worker worker |> ignore
+      Counter.UpdateReport (PostProcessor ignore) (PointProcessor ignore) true item ReportFormat.OpenCover worker worker |> ignore
       worker.Position <- 0L
       let after = XmlDocument()
       after.Load worker
@@ -725,7 +725,7 @@ type AltCoverTests() =
       let reportFile = Path.Combine(unique, "FlushLeavesExpectedTraces.xml")
       let outputFile = Path.Combine(unique, "FlushLeavesExpectedTracesWhenDiverted.xml")
       try
-        let visits = new Dictionary<string, Dictionary<int, int * Track list>>()
+        let visits = new Dictionary<string, Dictionary<int, PointVisits>>()
         use stdout = new StringWriter()
         Console.SetOut stdout
         Directory.CreateDirectory(unique) |> ignore
@@ -740,10 +740,10 @@ type AltCoverTests() =
         do use worker = new FileStream(reportFile, FileMode.CreateNew)
            worker.Write(buffer, 0, size)
            ()
-        let payload = Dictionary<int, int * Track list>()
-        [ 0..9 ] |> Seq.iter (fun i -> payload.[i] <- (i + 1, []))
+        let payload = Dictionary<int, PointVisits>()
+        [ 0..9 ] |> Seq.iter (fun i -> payload.[i] <- { Count = i + 1; Context = [] })
         visits.["f6e3edb3-fb20-44b3-817d-f69d1a22fc2f"] <- payload
-        Counter.DoFlush ignore (fun _ _ -> ()) true visits
+        Counter.DoFlush (PostProcessor ignore) (PointProcessor ignore) true visits
           AltCover.Recorder.ReportFormat.NCover reportFile (Some outputFile) |> ignore
         use worker' = new FileStream(outputFile, FileMode.Open)
         let after = XmlDocument()

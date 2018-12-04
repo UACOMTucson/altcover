@@ -14,7 +14,7 @@ open System.Reflection
 open System.Text.RegularExpressions
 
 open AltCover.Augment
-open AltCover.Base
+open AltCover.Recorder
 open Mono.Cecil
 open Mono.Cecil.Cil
 open Mono.Cecil.Rocks
@@ -182,19 +182,19 @@ module internal Visitor =
   let defaultInterval = 0
   let Interval() = (Option.getOrElse defaultInterval interval)
 
-  let mutable internal reportFormat : Option<ReportFormat> = None
+  let mutable internal reportFormat : Option<Recorder.ReportFormat> = None
   let mutable internal coverstyle = CoverStyle.All
 
   let defaultReportFormat() =
-    if coverstyle = CoverStyle.All then ReportFormat.NCover
-    else ReportFormat.OpenCover
+    if coverstyle = CoverStyle.All then Recorder.ReportFormat.NCover
+    else Recorder.ReportFormat.OpenCover
 
   let ReportKind() = (Option.getOrElse (defaultReportFormat()) reportFormat)
 
   let ReportFormat() =
     let fmt = ReportKind()
-    if fmt = ReportFormat.OpenCover && (TrackingNames.Any() || Interval() > 0) then
-      ReportFormat.OpenCoverWithTracking
+    if fmt = Recorder.ReportFormat.OpenCover && (TrackingNames.Any() || Interval() > 0) then
+      Recorder.ReportFormat.OpenCoverWithTracking
     else fmt
 
   let mutable internal defaultStrongNameKey : option<StrongNameKeyPair> = None
@@ -255,7 +255,7 @@ module internal Visitor =
 
                     let included =
                       inspection ||| if inspection = Inspect.Instrument
-                                        && ReportFormat() = Base.ReportFormat.OpenCoverWithTracking then
+                                        && ReportFormat() = Recorder.ReportFormat.OpenCoverWithTracking then
                                        Inspect.Track
                                      else Inspect.Ignore
                     ProgramDatabase.ReadSymbols(x)
@@ -637,7 +637,7 @@ module internal Visitor =
                          |> Some, i + point, wanted interesting s))
 
     let IncludeBranches() =
-      instructions.Any() && ReportKind() = Base.ReportFormat.OpenCover
+      instructions.Any() && ReportKind() = Recorder.ReportFormat.OpenCover
       && (coverstyle <> CoverStyle.LineOnly)
 
     let bp =

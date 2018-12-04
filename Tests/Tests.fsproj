@@ -101,6 +101,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AltCover.Recorder\AltCover.Recorder.fsproj">
+      <Name>AltCover.Recorder</Name>
+      <Project>{02192b55-3a50-4ad2-b519-560f30c14dd4}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Sample11\Sample11.csproj">
       <Name>Sample11</Name>
       <Project>{cef40b51-1128-4ed5-9bb8-70e48ca7573b}</Project>
@@ -114,6 +119,11 @@
     <ProjectReference Include="..\Sample6\Sample6.fsproj">
       <Name>Sample6</Name>
       <Project>{4fa35926-fb21-4f1b-bb55-465d472ee027}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Shadow.Adapter\Shadow.Adapter.fsproj">
+      <Name>Shadow.Adapter</Name>
+      <Project>{24bfb835-2dac-45d4-afda-f9c2f13b41dd}</Project>
       <Private>True</Private>
     </ProjectReference>
     <Reference Include="FSharp.Core">

@@ -7,6 +7,7 @@ open System.Reflection
 open System.Xml.Linq
 
 open AltCover
+open AltCover.Recorder
 open Mono.Options
 open Newtonsoft.Json.Linq
 open Xunit
@@ -623,7 +624,7 @@ module XTests =
     try
       Visitor.outputDirectory <- Some output
       let input = { InstrumentContext.Build [] with RecordingAssembly = def }
-      let result = Instrument.InstrumentationVisitor input Finish
+      let result = Instrument.InstrumentationVisitor input Node.Finish
       Assert.True(result.RecordingAssembly |> isNull)
       let created = Path.Combine(output, "Sample4.dll")
       Assert.True(File.Exists created, created + " not found")
@@ -678,12 +679,12 @@ module XTests =
         Assert.Equal(rest, [| "test"; "1" |])
         255
 
-      let monitor (hits : Dictionary<string, Dictionary<int, int * Base.Track list>>) (token : string) _ _ =
+      let monitor (hits : Dictionary<string, Dictionary<int, PointVisits>>) (token : string) _ _ =
         Assert.Equal(token, codedreport) //, "should be default coverage file")
         Assert.Empty(hits)
         127
 
-      let write (hits : Dictionary<string, Dictionary<int, int * Base.Track list>>) format (report : string)
+      let write (hits : Dictionary<string, Dictionary<int, PointVisits>>) format (report : string)
           (output : String option) =
         Assert.Equal(report, codedreport) //, "should be default coverage file")
         Assert.Equal(output, Some alternate)
@@ -755,7 +756,7 @@ module XTests =
 #endif
     try
       Visitor.NameFilters.Clear()
-      Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+      Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
       Visitor.Visit [ visitor ] (Visitor.ToSeq path')
       let resource =
         Assembly.GetExecutingAssembly().GetManifestResourceNames()

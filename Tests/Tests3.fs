@@ -1111,7 +1111,7 @@ type AltCoverTests3() =
           Assert.That(x, Is.Empty)
         match Visitor.reportFormat with
         | None -> Assert.Fail()
-        | Some x -> Assert.That(x, Is.EqualTo AltCover.Base.ReportFormat.OpenCover)
+        | Some x -> Assert.That(x, Is.EqualTo AltCover.Recorder.ReportFormat.OpenCover)
       finally
         Visitor.reportFormat <- None
 
@@ -1275,7 +1275,7 @@ type AltCoverTests3() =
         Assert.That(Visitor.coverstyle, Is.EqualTo CoverStyle.LineOnly)
         match Visitor.reportFormat with
         | None -> Assert.Fail()
-        | Some x -> Assert.That(x, Is.EqualTo AltCover.Base.ReportFormat.OpenCover)
+        | Some x -> Assert.That(x, Is.EqualTo AltCover.Recorder.ReportFormat.OpenCover)
       finally
         Visitor.reportFormat <- None
         Visitor.coverstyle <- CoverStyle.All
@@ -1296,7 +1296,7 @@ type AltCoverTests3() =
         Assert.That(Visitor.coverstyle, Is.EqualTo CoverStyle.LineOnly)
         match Visitor.reportFormat with
         | None -> Assert.Fail()
-        | Some x -> Assert.That(x, Is.EqualTo AltCover.Base.ReportFormat.OpenCover)
+        | Some x -> Assert.That(x, Is.EqualTo AltCover.Recorder.ReportFormat.OpenCover)
       finally
         Visitor.reportFormat <- None
         Visitor.coverstyle <- CoverStyle.All
@@ -1366,7 +1366,7 @@ type AltCoverTests3() =
         Assert.That(Visitor.coverstyle, Is.EqualTo CoverStyle.BranchOnly)
         match Visitor.reportFormat with
         | None -> Assert.Fail()
-        | Some x -> Assert.That(x, Is.EqualTo AltCover.Base.ReportFormat.OpenCover)
+        | Some x -> Assert.That(x, Is.EqualTo AltCover.Recorder.ReportFormat.OpenCover)
       finally
         Visitor.reportFormat <- None
         Visitor.coverstyle <- CoverStyle.All
@@ -1387,7 +1387,7 @@ type AltCoverTests3() =
         Assert.That(Visitor.coverstyle, Is.EqualTo CoverStyle.BranchOnly)
         match Visitor.reportFormat with
         | None -> Assert.Fail()
-        | Some x -> Assert.That(x, Is.EqualTo AltCover.Base.ReportFormat.OpenCover)
+        | Some x -> Assert.That(x, Is.EqualTo AltCover.Recorder.ReportFormat.OpenCover)
       finally
         Visitor.coverstyle <- CoverStyle.All
         Visitor.reportFormat <- None

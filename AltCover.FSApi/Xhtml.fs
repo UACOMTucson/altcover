@@ -14,11 +14,11 @@ module Xhtml =
 
     let format =
       if navigator.Select("/CoverageSession").OfType<XPathNavigator>().Any() then
-        AltCover.Base.ReportFormat.OpenCover
-      else AltCover.Base.ReportFormat.NCover
+        AltCover.Recorder.ReportFormat.OpenCover
+      else AltCover.Recorder.ReportFormat.NCover
 
     let intermediate =
-      if format = AltCover.Base.ReportFormat.NCover then navigable
+      if format = AltCover.Recorder.ReportFormat.NCover then navigable
       else
         let modify = XmlUtilities.LoadTransform "OpenCoverToNCoverEx"
         let temp = XmlDocument()

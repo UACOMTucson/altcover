@@ -54,12 +54,12 @@ module XmlUtilities =
     xdoc
 
   [<SuppressMessage("Microsoft.Usage", "CA2202", Justification = "Observably safe")>]
-  let internal LoadSchema(format : AltCover.Base.ReportFormat) =
+  let internal LoadSchema(format : AltCover.Recorder.ReportFormat) =
     let schemas = new XmlSchemaSet()
 
     use stream =
       match format with
-      | AltCover.Base.ReportFormat.NCover ->
+      | AltCover.Recorder.ReportFormat.NCover ->
         Assembly.GetExecutingAssembly()
                 .GetManifestResourceStream("AltCover.FSApi.xsd.NCover.xsd")
       | _ ->
@@ -87,8 +87,8 @@ module XmlUtilities =
   let internal DiscoverFormat(xmlDocument : XmlDocument) =
     let format =
       if xmlDocument.SelectNodes("/CoverageSession").OfType<XmlNode>().Any() then
-        AltCover.Base.ReportFormat.OpenCover
-      else AltCover.Base.ReportFormat.NCover
+        AltCover.Recorder.ReportFormat.OpenCover
+      else AltCover.Recorder.ReportFormat.NCover
 
     let schema = LoadSchema format
     xmlDocument.Schemas <- schema

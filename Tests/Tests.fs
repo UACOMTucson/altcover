@@ -1089,7 +1089,7 @@ type AltCoverTests() =
         |> Seq.head
       Visitor.Visit [] [] // cheat reset
       try
-        Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+        Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
         "Program"
         |> (Regex
             >> FilterClass.File
@@ -1128,7 +1128,7 @@ type AltCoverTests() =
          |> Seq.head)
       Visitor.Visit [] [] // cheat reset
       try
-        Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+        Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
         "Main"
         |> (Regex
             >> FilterClass.Method
@@ -1238,7 +1238,7 @@ type AltCoverTests() =
       let path =
         Path.Combine(Path.GetDirectoryName(where) + AltCoverTests.Hack(), sample1)
       try
-        Assert.That(Visitor.ReportFormat(), Is.EqualTo Base.ReportFormat.NCover)
+        Assert.That(Visitor.ReportFormat(), Is.EqualTo Recorder.ReportFormat.NCover)
         "Sample"
         |> (Regex
             >> FilterClass.Assembly
@@ -1833,7 +1833,7 @@ type AltCoverTests() =
         |> Seq.find (fun m -> m.Name = "as_bar")
       Visitor.Visit [] [] // cheat reset
       try
-        Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+        Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
         "Program"
         |> (Regex
             >> FilterClass.File
@@ -1932,7 +1932,7 @@ type AltCoverTests() =
         Path.Combine(Path.GetDirectoryName(where) + AltCoverTests.Hack(), sample1)
       try
         Visitor.NameFilters.Clear()
-        Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+        Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
         Visitor.Visit [ visitor ] (Visitor.ToSeq path)
         let resource =
           Assembly.GetExecutingAssembly().GetManifestResourceNames()
@@ -1957,7 +1957,7 @@ type AltCoverTests() =
       let X name = XName.Get(name)
       try
         Visitor.NameFilters.Clear()
-        Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+        Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
         Visitor.coverstyle <- CoverStyle.LineOnly
         Visitor.Visit [ visitor ] (Visitor.ToSeq path)
         let resource =
@@ -1995,7 +1995,7 @@ type AltCoverTests() =
       let X name = XName.Get(name)
       try
         Visitor.NameFilters.Clear()
-        Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+        Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
         Visitor.coverstyle <- CoverStyle.BranchOnly
         Visitor.Visit [ visitor ] (Visitor.ToSeq path)
         let resource =
@@ -2048,7 +2048,7 @@ type AltCoverTests() =
         Visitor.NameFilters.Clear()
         Visitor.TrackingNames.Clear()
         Visitor.TrackingNames.Add("Main")
-        Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+        Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
         Visitor.Visit [ visitor ] (Visitor.ToSeq path)
         let baseline = self.AddTrackingForMain "Sample1WithOpenCover.xml"
         let result = document.Elements()
@@ -2100,7 +2100,7 @@ type AltCoverTests() =
       try
         Visitor.TrackingNames.Clear()
         Visitor.TrackingNames.Add("Main")
-        Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+        Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
         "Sample"
         |> (Regex
             >> FilterClass.Module
@@ -2132,13 +2132,13 @@ type AltCoverTests() =
     [<Test>]
     member self.ShouldGenerateExpectedXmlReportWithClassExclusionOpenCoverStyle() =
       let visitor, document = OpenCover.ReportGenerator()
-      Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+      Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
       // Hack for running while instrumented
       let where = Assembly.GetExecutingAssembly().Location
       let path =
         Path.Combine(Path.GetDirectoryName(where) + AltCoverTests.Hack(), sample1)
       try
-        Assert.That(Visitor.ReportFormat(), Is.EqualTo Base.ReportFormat.OpenCover)
+        Assert.That(Visitor.ReportFormat(), Is.EqualTo Recorder.ReportFormat.OpenCover)
         "Program"
         |> (Regex
             >> FilterClass.Type
@@ -2160,7 +2160,7 @@ type AltCoverTests() =
     [<Test>]
     member self.ShouldGenerateExpectedTrackingXmlReportWithClassExclusionOpenCoverStyle() =
       let visitor, document = OpenCover.ReportGenerator()
-      Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+      Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
       // Hack for running while instrumented
       let where = Assembly.GetExecutingAssembly().Location
       let path =
@@ -2169,7 +2169,7 @@ type AltCoverTests() =
         Visitor.TrackingNames.Clear()
         Visitor.TrackingNames.Add("Main")
         Assert.That
-          (Visitor.ReportFormat(), Is.EqualTo Base.ReportFormat.OpenCoverWithTracking)
+          (Visitor.ReportFormat(), Is.EqualTo Recorder.ReportFormat.OpenCoverWithTracking)
         "Program"
         |> (Regex
             >> FilterClass.Type
@@ -2213,7 +2213,7 @@ type AltCoverTests() =
     [<Test>]
     member self.ShouldGenerateExpectedTrackingXmlReportWithMethodExclusionOpenCoverStyle() =
       let visitor, document = OpenCover.ReportGenerator()
-      Visitor.reportFormat <- Some Base.ReportFormat.OpenCover
+      Visitor.reportFormat <- Some Recorder.ReportFormat.OpenCover
       // Hack for running while instrumented
       let where = Assembly.GetExecutingAssembly().Location
       let path =
@@ -2222,7 +2222,7 @@ type AltCoverTests() =
         Visitor.TrackingNames.Clear()
         Visitor.TrackingNames.Add("Main")
         Assert.That
-          (Visitor.ReportFormat(), Is.EqualTo Base.ReportFormat.OpenCoverWithTracking)
+          (Visitor.ReportFormat(), Is.EqualTo Recorder.ReportFormat.OpenCoverWithTracking)
         "Main"
         |> (Regex
             >> FilterClass.Method
