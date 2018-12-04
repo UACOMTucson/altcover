@@ -633,7 +633,7 @@ type AltCoverTests2() =
 #endif
               let proxyObject' = ad.CreateInstanceFromAndUnwrap(typeof<ProxyObject>.Assembly.Location,"Tests.ProxyObject") :?> ProxyObject
               proxyObject'.InstantiateObject(outputdll,"Sample3.Class3",[||])
-              let log = proxyObject'.InvokeMethod("get_Visits",[||]) :?> seq<Tuple<string, int>>
+              let log = proxyObject'.InvokeMethod("get_Visits",[||]) :?> System.Collections.IEnumerable
               if isWindows then // HACK HACK HACK
                 Assert.That (log, Is.EquivalentTo[(unique, 42)])
             finally

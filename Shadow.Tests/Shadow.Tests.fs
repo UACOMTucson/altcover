@@ -203,7 +203,8 @@ type AltCoverTests() =
         Instance.VisitSelection Null key 23
         Assert.That (Instance.Visits.Count, Is.EqualTo 1, "A visit that should have happened, didn't")
         Assert.That (Instance.Visits.[key].Count, Is.EqualTo 1, "keys = " + String.Join("; ", Instance.Visits.Keys|> Seq.toArray))
-        Assert.That (Instance.Visits.[key].[23], Is.EqualTo (1, []))
+        let v = PointVisits.Default().Visit Null
+        Assert.That (Instance.Visits.[key].[23], Is.EqualTo v)
       finally
         Instance.Visits.Clear()
         Instance.trace <- save)
@@ -247,7 +248,8 @@ type AltCoverTests() =
         let key = " "
         Instance.VisitImpl key 23 Null
         Instance.VisitImpl key 23 Null
-        Assert.That (Instance.Visits.[key].[23], Is.EqualTo (2,[]))
+        let v = (PointVisits.Default().Visit Null).Visit Null
+        Assert.That (Instance.Visits.[key].[23], Is.EqualTo v)
       finally
         Instance.Visits.Clear())
       self.GetMyMethodName "<="
@@ -262,7 +264,8 @@ type AltCoverTests() =
         let payload = Time DateTime.UtcNow.Ticks
         Instance.VisitImpl key 23 Null
         Instance.VisitImpl key 23 payload
-        Assert.That (Instance.Visits.[key].[23], Is.EqualTo (1, [payload]))
+        let v = (PointVisits.Default().Visit Null).Visit payload
+        Assert.That (Instance.Visits.[key].[23], Is.EqualTo v)
       finally
         Instance.Visits.Clear())
       self.GetMyMethodName "<="
