@@ -124,11 +124,6 @@ type AltCoverTests() =
         let expected =
           "Command line : '" + quote + exe + quote + " " + args + "\'"
           + Environment.NewLine + "Where is my rocket pack? " + Environment.NewLine
-        // hack for Mono
-        //let computed = if result.Length = 14 then
-        //                 result |> Encoding.Unicode.GetBytes |> Array.takeWhile (fun c -> c <> 0uy)|> Encoding.UTF8.GetString
-        //               else result
-        //if "TRAVIS_JOB_NUMBER" |> Environment.GetEnvironmentVariable |> String.IsNullOrWhiteSpace || result.Length > 0 then
         Assert.That(result, Is.EqualTo(expected))
       finally
         Console.SetOut(fst saved)
@@ -936,11 +931,6 @@ type AltCoverTests() =
           "Command line : '" + quote + args.Head + quote + " "
           + String.Join(" ", args.Tail) + "'" + Environment.NewLine
           + "Where is my rocket pack? " + u1 + "*" + u2 + Environment.NewLine
-        // hack for Mono
-        //let computed = if result.Length = 50 then
-        //                 result |> Encoding.Unicode.GetBytes |> Array.takeWhile (fun c -> c <> 0uy)|> Encoding.UTF8.GetString
-        //               else result
-        //if "TRAVIS_JOB_NUMBER" |> Environment.GetEnvironmentVariable |> String.IsNullOrWhiteSpace || result.Length > 0 then
         Assert.That(result, Is.EqualTo expected)
       finally
         Console.SetOut(fst saved)
@@ -1155,11 +1145,6 @@ or
           "Command line : '" + quote + args.Head + quote + " "
           + String.Join(" ", args.Tail) + "'" + Environment.NewLine
           + "Where is my rocket pack? " + u1 + "*" + u2 + Environment.NewLine
-        // hack for Mono
-        //let computed = if result.Length = 50 then
-        //                 result |> Encoding.Unicode.GetBytes |> Array.takeWhile (fun c -> c <> 0uy)|> Encoding.UTF8.GetString
-        //               else result
-        //if "TRAVIS_JOB_NUMBER" |> Environment.GetEnvironmentVariable |> String.IsNullOrWhiteSpace || result.Length > 0 then
         Assert.That(result, Is.EqualTo expected)
       finally
         Console.SetOut(fst saved)
