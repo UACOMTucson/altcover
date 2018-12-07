@@ -34,7 +34,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors>
     </WarningsAsErrors>
-    <OtherFlags>--keyfile:$(SolutionDir)\Build\Infrastructure.snk --standalone</OtherFlags>
+    <OtherFlags>--keyfile:$(SolutionDir)\Build\Infrastructure.snk --standalone --staticlink:AltCover.Base</OtherFlags>
     <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;$(ExtraDefines)</DefineConstants>
     <WarningLevel>5</WarningLevel>
     <NoWarn>52</NoWarn>
@@ -49,7 +49,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors>
     </WarningsAsErrors>
-    <OtherFlags>--keyfile:$(SolutionDir)\Build\Infrastructure.snk --standalone</OtherFlags>
+    <OtherFlags>--keyfile:$(SolutionDir)\Build\Infrastructure.snk --standalone --staticlink:AltCover.Base</OtherFlags>
     <DefineConstants>TRACE;$(ExtraDefines)</DefineConstants>
     <WarningLevel>4</WarningLevel>
     <NoWarn>2009</NoWarn>
@@ -75,7 +75,6 @@
     <Compile Include="..\_Generated\VisibleToTest.fs">
       <Link>VisibleToTest.fs</Link>
     </Compile>
-    <Compile Include="Base.fs" />
     <Compile Include="Tracer.fs" />
     <Compile Include="Recorder.fs" />
     <EmbeddedResource Include="Strings.resx" />
@@ -91,6 +90,13 @@
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AltCover.Base\AltCover.Base.csproj">
+      <Name>AltCover.Base</Name>
+      <Project>{055c8af5-d442-4889-93aa-c86cceb9e89c}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <!-- Import Project="..\packages\FSharpLint.MSBuild.0.9.1-beta\build\FSharpLint.MSBuild.targets" Condition="Exists('..\packages\FSharpLint.MSBuild.0.9.1-beta\build\FSharpLint.MSBuild.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

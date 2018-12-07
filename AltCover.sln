@@ -98,6 +98,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AltCover.Fake.DotNet.Testin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample11", "Sample11\Sample11.csproj", "{CEF40B51-1128-4ED5-9BB8-70E48CA7573B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltCover.Base", "AltCover.Base\AltCover.Base.csproj", "{055C8AF5-D442-4889-93AA-C86CCEB9E89C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -291,6 +293,14 @@ Global
 		{CEF40B51-1128-4ED5-9BB8-70E48CA7573B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEF40B51-1128-4ED5-9BB8-70E48CA7573B}.Release|x86.ActiveCfg = Release|Any CPU
 		{CEF40B51-1128-4ED5-9BB8-70E48CA7573B}.Release|x86.Build.0 = Release|Any CPU
+		{055C8AF5-D442-4889-93AA-C86CCEB9E89C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{055C8AF5-D442-4889-93AA-C86CCEB9E89C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{055C8AF5-D442-4889-93AA-C86CCEB9E89C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{055C8AF5-D442-4889-93AA-C86CCEB9E89C}.Debug|x86.Build.0 = Debug|Any CPU
+		{055C8AF5-D442-4889-93AA-C86CCEB9E89C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{055C8AF5-D442-4889-93AA-C86CCEB9E89C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{055C8AF5-D442-4889-93AA-C86CCEB9E89C}.Release|x86.ActiveCfg = Release|Any CPU
+		{055C8AF5-D442-4889-93AA-C86CCEB9E89C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
