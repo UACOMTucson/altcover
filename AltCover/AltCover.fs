@@ -394,6 +394,10 @@ module internal Main =
     List.unzip sorted
 
   let internal DoInstrumentation arguments =
+    let dotnetBuild = Assembly.GetEntryAssembly() // is null for unit tests
+                      |> Option.nullable
+                      |> Option.map (fun a -> Path.GetFileName(a.Location).Equals("MSBuild.dll"))
+                      |> Option.getOrElse false
     let check1 =
       DeclareOptions()
       |> CommandLine.ParseCommandLine arguments
@@ -401,7 +405,7 @@ module internal Main =
       |> ProcessOutputLocation
     match check1 with
     | Left(intro, options) ->
-      CommandLine.HandleBadArguments arguments intro options (Runner.DeclareOptions())
+      CommandLine.HandleBadArguments dotnetBuild arguments intro options (Runner.DeclareOptions())
       255
     | Right(rest, fromInfo, toInfo, targetInfo) ->
       let report = Visitor.ReportPath()
@@ -429,7 +433,7 @@ module internal Main =
           document.Save(report)
           if Visitor.collect then Runner.SetRecordToFile report
           CommandLine.ProcessTrailingArguments rest toInfo) 255 true
-      CommandLine.ReportErrors "Instrumentation"
+      CommandLine.ReportErrors "Instrumentation" dotnetBuild
       result
 
   let internal (|Select|_|) (pattern : String) offered =
