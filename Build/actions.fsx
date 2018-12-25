@@ -328,12 +328,14 @@ do ()"""
     let instrumented = "__Instrumented." + reportSigil
 
     let prep =
-      { AltCover.PrepareParams.Create() with TypeFilter = [ """System\.""" ]
-                                             XmlReport = simpleReport
-                                             OutputDirectory = "./" + instrumented
-                                             OpenCover = false
-                                             InPlace = false
-                                             Save = false }
+      AltCover.PrepareParams.Primitive
+        { Primitive.PrepareParams.Create() with TypeFilter = [ """System\.""" ]
+                                                XmlReport = simpleReport
+                                                OutputDirectory =
+                                                  "./" + instrumented
+                                                OpenCover = false
+                                                InPlace = false
+                                                Save = false }
       |> AltCover.Prepare
 
     let parameters =
@@ -361,12 +363,14 @@ do ()"""
       let instrumented = "__Instrumented." + reportSigil
 
       let prep =
-        { AltCover.PrepareParams.Create() with TypeFilter = [ """System\.""" ]
-                                               XmlReport = simpleReport
-                                               OutputDirectory = "./" + instrumented
-                                               OpenCover = false
-                                               InPlace = false
-                                               Save = false }
+        AltCover.PrepareParams.Primitive
+          { Primitive.PrepareParams.Create() with TypeFilter = [ """System\.""" ]
+                                                  XmlReport = simpleReport
+                                                  OutputDirectory =
+                                                    "./" + instrumented
+                                                  OpenCover = false
+                                                  InPlace = false
+                                                  Save = false }
         |> AltCover.Prepare
 
       let parameters =

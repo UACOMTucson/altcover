@@ -389,6 +389,7 @@ type AltCoverTests2() =
         Assert.That(prepared.Name.Name, Is.EqualTo(raw.Name.Name + ".g"))
 #if NETCOREAPP2_0
         Assert.That(prepared.Name.HasPublicKey, Is.False)
+        Assert.That(prepared.MainModule.HasSymbols, Is.False)
 #else
         Assert.That (prepared.Name.HasPublicKey)
         Assert.That (prepared.Name.PublicKey, Is.Not.EquivalentTo(raw.Name.PublicKey))
@@ -1863,9 +1864,8 @@ type AltCoverTests2() =
         Assert.That(lines |> List.skip 4, Is.Not.Empty)
         Assert.That(info.ToString(), Is.Empty)
         Assert.That
-          (err.ToString().Trim(), Is.EqualTo("Details written to " + target +
-                                               Environment.NewLine +
-                                               "If this problem was detected in the pre-test instrumentation stage of `dotnet test`, then the file will be moved to " +
+          (err.ToString().Trim().Replace("\r", String.Empty).Replace("\n","|"), Is.EqualTo("Details written to " + target +
+                                               "|If this problem was detected in the pre-test instrumentation stage of `dotnet test`, then the file may have been moved to " +
                                                target' + " when the task completes.|"))
       finally
         CommandLine.error <- []

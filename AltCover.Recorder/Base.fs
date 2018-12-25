@@ -116,7 +116,7 @@ type internal TrackSplit =
 type internal PostProcessor = delegate of XmlDocument -> Unit
 type internal PointProcessor = delegate of XmlPointVisits -> unit
 
-module Assist =
+module internal Assist =
   let internal SafeDispose x =
     try
       (x :> IDisposable).Dispose()
@@ -125,7 +125,7 @@ module Assist =
   let NoneString () : string option = None
   let SomeValue s  : string option = Some s
 
-module Counter =
+module internal Counter =
   /// <summary>
   /// The offset flag for branch counts
   /// </summary>

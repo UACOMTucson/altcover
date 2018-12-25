@@ -45,11 +45,11 @@ type Tracer =
       |> Seq.head
     else this
 
-  member this.Close() = try
-                          this.Stream.Flush()
-                          this.Formatter.Close()
-                        with
-                        | :? ObjectDisposedException -> ()
+  member this.Close() =
+    try
+      this.Stream.Flush()
+      this.Formatter.Close()
+    with :? ObjectDisposedException -> ()
 
   member internal this.Push (moduleId : string) (hitPointId : int) context =
     this.Formatter.Write moduleId

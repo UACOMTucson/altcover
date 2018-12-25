@@ -2,8 +2,32 @@ Q. Never mind the fluff -- how do I get started?
 
 A. Start with the Quick Start guide : https://github.com/SteveGilham/altcover/wiki/QuickStart-Guide
 
+# 5.0.663 (Ezoguma series release 1)
+Bringing gifts, as is appropriate for the season
+* [BUGFIX] Issue #46 -- handle the case of a left-behind `__Saved` directories by failing in a more obvious fashion (and offering a `/p:AltCoverForce=true` option to force-delete such a directory)
+* Support instrumenting assemblies with embedded PDBs
+  * [BREAKING] the `XUnit` assemblies have embedded PDBs, so will suddenly be caught up in instrumentation without a `-e xunit` or equivalent to exclude them
+* [BREAKING] Complete API overhaul to properly address known problems and to try to future-proof everything against any similar issues -- see the Wiki [here for in-process execution](https://github.com/SteveGilham/altcover/wiki/The-AltCover-API,-plus-Fake-and-Cake-integration) and [here for FAKE scripting](https://github.com/SteveGilham/altcover/wiki/The-AltCover.Fake-package)
+
+# 4.0.661 (Doruka series release 11)
+* [BUGFIX] More forms of Issue #43 related to `yield return` synthetic methods.
+* [BUGFIX] Issue #45 by re-working the static linkage of the recorder assembly using `ILMerge /internalise` (rather than `--standalone`).
+* Updating consumed libraries and related changes.
+
+# 4.0.660 (Doruka series release 10)
+* [BUGFIX] Issue #43 Detect and skip simple recursive references when looking from a synthetic method to its containing method
+* [Enhancement] Follow the Fake build system to use [`BlackFox.CommandLine`](https://github.com/vbfox/FoxSharp/tree/master/src/BlackFox.CommandLine) facilities to compose command lines with proper re-escaping/enquoting of items read from the command line following a `--`
+* [BUGFIX] [API] A single string for a command line as in `AltCover.PrepareParams.CommandLine` would not work for anything more than a parameterless invocation.
+  * Add new field `Command` to the F# & C# parameter APIs and to the MSBuild task taking an array or sequence of strings
+  * Deprecate the `CommandLine` field (at compile time for C# API and MSBuild; warning at runtime for F#, because it's not possible to usefully mark a record field as [<Obsolete>])
+  * In the cases where the deprecated `CommandLine` field is used (non-empty with the preferred `.Command` field being empty), use the operating-system specific facilities in `BlackFox.CommandLine` to decompose the string so as to separate out the executable from its arguments)
+  * Expect a thorough and breaking rework in the next major version (5.0) release
+* [BUGFIX] If an error is raised during instrumentation, then a message is logged saying that the exception details have been written to a file in the nominated output directory (for `--inplace` operations, this is where the unaltered binaries are saved off to).  If this happens during `dotnet test`, the tidy-up action actually moves everything from that directory back into the original location and deletes the output directory, moving the log file too.  If the operation could be `dotnet test`, then amend the message appropriately to say that the file may have been moved.
+* Minor improvements to error handling in the Visualizer
+* Minor improvements to the fix for issue #41
+
 # 4.0.659 (Doruka series release 9)
-* [BUGFIX] Issue #42 Remove the need for process-exit handling to rely on non-event-handler threads being scheduled, so allowing the coverage data to be flushed to disk, even on low-spec platforms like Rapberry Pi
+* [BUGFIX] Issue #42 Remove the need for process-exit handling to rely on non-event-handler threads being scheduled, so allowing the coverage data to be flushed to disk, even on low-spec platforms like Raspberry Pi
 * [BUGFIX] Issue #41 Reduce memory use in processing coverage data (runner mode/`dotnet test` scenarios)
 * [BUGFIX] Exclusion by attribute now works for property-level attributes, and will exclude the getter and/or setter (if not already excluded)
 * Various build process improvements/updates

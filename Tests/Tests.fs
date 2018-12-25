@@ -145,6 +145,27 @@ type AltCoverTests() =
                Assert.That
                  ("/" + name.Replace("\\", "/"), Does.EndWith("/" + filename),
                   (fst x) + " -> " + name))
+#if MONO
+// Mono doesn't embed
+#else
+    [<Test>]
+    member self.ShouldGetEmbeddedPdbFromImage() =
+      let where = Assembly.GetExecutingAssembly().Location
+      let here = where |> Path.GetDirectoryName
+#if NETCOREAPP2_0
+      let target = Path.Combine (here, "Sample8.dll")
+#else
+      let target = Path.Combine (here, "Sample8.exe")
+#endif
+      let image = Mono.Cecil.AssemblyDefinition.ReadAssembly target
+      let pdb = AltCover.ProgramDatabase.GetPdbFromImage image
+      match pdb with
+      | None -> Assert.Fail("No .pdb for " + target)
+      | Some name ->
+        Assert.That
+          (name, Is.EqualTo "Sample8.pdb",
+          target + " -> " + name)
+#endif
 
     [<Test>]
     member self.ShouldGetNoMdbFromMonoImage() =
@@ -342,6 +363,19 @@ type AltCoverTests() =
         |> Seq.iter (fun def ->
              AltCover.ProgramDatabase.ReadSymbols def
              Assert.That(def.MainModule.HasSymbols, def.MainModule.FileName))
+
+    [<Test>]
+    member self.ShouldGetSymbolsFromEmbeddedPdb() =
+      let where = Assembly.GetExecutingAssembly().Location
+      let here = where |> Path.GetDirectoryName
+#if NETCOREAPP2_0
+      let target = Path.Combine (here, "Sample8.dll")
+#else
+      let target = Path.Combine (here, "Sample8.exe")
+#endif
+      let image = Mono.Cecil.AssemblyDefinition.ReadAssembly target
+      AltCover.ProgramDatabase.ReadSymbols image
+      Assert.That(image.MainModule.HasSymbols, image.MainModule.FileName)
 
     [<Test>]
     member self.ShouldNotGetSymbolsWhenNoPdb() =
@@ -709,11 +743,14 @@ type AltCoverTests() =
         |> Seq.collect (fun t -> t.Methods)
         |> Seq.toList
 
-      let result =
+      let containing =
         methods
         |> Seq.map Visitor.ContainingMethod
+
+      let result =
+        containing
         |> Seq.map
-             (fun (mo : MethodDefinition option) -> mo |> Option.map (fun m -> m.Name))
+             (fun (mo : MethodDefinition option) -> mo |> Option.map id)
 
       let expected =
         [ None // System.Int32 Sample5.Class1::F1(System.String)
@@ -764,15 +801,49 @@ type AltCoverTests() =
           Some "F3" // System.Void Sample5.Class1/<F3>d__2::.ctor()
           Some "F3" // System.Void Sample5.Class1/<F3>d__2::MoveNext()
           Some "F3" // System.Void Sample5.Class1/<F3>d__2::SetStateMachine(System.Runtime.CompilerServices.IAsyncStateMachine)
+          None // "System.Collections.Generic.IEnumerable`1<K> Sample5.RecursiveSyntheticInvocation`2::System.Collections.Generic.IReadOnlyDictionary<T,K>.get_Values()"
+          None // "System.Collections.Generic.IEnumerable`1<K> Sample5.RecursiveSyntheticInvocation`2::get_ValuesWorks()"
+          None // "System.Collections.Generic.IEnumerable`1<T> Sample5.RecursiveSyntheticInvocation`2::System.Collections.Generic.IReadOnlyDictionary<T,K>.get_Keys()"
+          None // "K Sample5.RecursiveSyntheticInvocation`2::System.Collections.Generic.IReadOnlyDictionary<T,K>.get_Item(T)"
+          None // "System.Int32 Sample5.RecursiveSyntheticInvocation`2::System.Collections.Generic.IReadOnlyCollection<System.Collections.Generic.KeyValuePair<T,K>>.get_Count()"
+          None // "System.Boolean Sample5.RecursiveSyntheticInvocation`2::System.Collections.Generic.IReadOnlyDictionary<T,K>.ContainsKey(T)"
+          None // "System.Collections.Generic.IEnumerator`1<System.Collections.Generic.KeyValuePair`2<T,K>> Sample5.RecursiveSyntheticInvocation`2::System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<T,K>>.GetEnumerator()"
+          None // "System.Collections.IEnumerator Sample5.RecursiveSyntheticInvocation`2::System.Collections.IEnumerable.GetEnumerator()"
+          None  // "System.Boolean Sample5.RecursiveSyntheticInvocation`2::System.Collections.Generic.IReadOnlyDictionary<T,K>.TryGetValue(T,K&)"
+          None  // "System.Void Sample5.RecursiveSyntheticInvocation`2::.ctor()"
+          Some "System.Collections.Generic.IReadOnlyDictionary<T,K>.get_Values" // "System.Void Sample5.RecursiveSyntheticInvocation`2/<System-Collections-Generic-IReadOnlyDictionary<T,K>-get_Values>d__2::.ctor(System.Int32)"
+          Some "System.Collections.Generic.IReadOnlyDictionary<T,K>.get_Values" // "System.Void Sample5.RecursiveSyntheticInvocation`2/<System-Collections-Generic-IReadOnlyDictionary<T,K>-get_Values>d__2::System.IDisposable.Dispose()"
+          Some "System.Collections.Generic.IReadOnlyDictionary<T,K>.get_Values" // "System.Boolean Sample5.RecursiveSyntheticInvocation`2/<System-Collections-Generic-IReadOnlyDictionary<T,K>-get_Values>d__2::MoveNext()"
+          Some "System.Collections.Generic.IReadOnlyDictionary<T,K>.get_Values" // "K Sample5.RecursiveSyntheticInvocation`2/<System-Collections-Generic-IReadOnlyDictionary<T,K>-get_Values>d__2::System.Collections.Generic.IEnumerator<K>.get_Current()"
+          Some "System.Collections.Generic.IReadOnlyDictionary<T,K>.get_Values" // "System.Void Sample5.RecursiveSyntheticInvocation`2/<System-Collections-Generic-IReadOnlyDictionary<T,K>-get_Values>d__2::System.Collections.IEnumerator.Reset()"
+          Some "System.Collections.Generic.IReadOnlyDictionary<T,K>.get_Values" // "System.Object Sample5.RecursiveSyntheticInvocation`2/<System-Collections-Generic-IReadOnlyDictionary<T,K>-get_Values>d__2::System.Collections.IEnumerator.get_Current()"
+          Some "System.Collections.Generic.IReadOnlyDictionary<T,K>.get_Values" // "System.Collections.Generic.IEnumerator`1<K> Sample5.RecursiveSyntheticInvocation`2/<System-Collections-Generic-IReadOnlyDictionary<T,K>-get_Values>d__2::System.Collections.Generic.IEnumerable<K>.GetEnumerator()"
+          Some "System.Collections.Generic.IReadOnlyDictionary<T,K>.get_Values" // "System.Collections.IEnumerator Sample5.RecursiveSyntheticInvocation`2/<System-Collections-Generic-IReadOnlyDictionary<T,K>-get_Values>d__2::System.Collections.IEnumerable.GetEnumerator()"
+          Some "get_ValuesWorks" // "System.Void Sample5.RecursiveSyntheticInvocation`2/<get_ValuesWorks>d__4::.ctor(System.Int32)"
+          Some "get_ValuesWorks" // "System.Void Sample5.RecursiveSyntheticInvocation`2/<get_ValuesWorks>d__4::System.IDisposable.Dispose()"
+          Some "get_ValuesWorks" // "System.Boolean Sample5.RecursiveSyntheticInvocation`2/<get_ValuesWorks>d__4::MoveNext()"
+          Some "get_ValuesWorks" // "K Sample5.RecursiveSyntheticInvocation`2/<get_ValuesWorks>d__4::System.Collections.Generic.IEnumerator<K>.get_Current()"
+          Some "get_ValuesWorks" // "System.Void Sample5.RecursiveSyntheticInvocation`2/<get_ValuesWorks>d__4::System.Collections.IEnumerator.Reset()"
+          Some "get_ValuesWorks" // "System.Object Sample5.RecursiveSyntheticInvocation`2/<get_ValuesWorks>d__4::System.Collections.IEnumerator.get_Current()"
+          Some "get_ValuesWorks" // "System.Collections.Generic.IEnumerator`1<K> Sample5.RecursiveSyntheticInvocation`2/<get_ValuesWorks>d__4::System.Collections.Generic.IEnumerable<K>.GetEnumerator()"
+          Some "get_ValuesWorks" // "System.Collections.IEnumerator Sample5.RecursiveSyntheticInvocation`2/<get_ValuesWorks>d__4::System.Collections.IEnumerable.GetEnumerator()"
                     ]
 
       // methods |> Seq.iter (fun x -> printfn "%A" x.FullName)
       // Assert.That (result, Is.EquivalentTo expected)
+      let toName (m:MethodDefinition) = m.Name
+      let toFullName (m:MethodDefinition) = m.FullName
+      methods
+      |> List.map Some
+      |> List.zip (containing |> Seq.toList)
+      |> List.iteri // Issue #43
+           (fun i (x, y) -> Assert.That(y, x |> Option.map toName |> Is.Not.EqualTo, sprintf "%A %A %d" (x |> Option.map toFullName) y i))
+
       result
       |> Seq.toList
       |> List.zip expected
       |> List.iteri
-           (fun i (x, y) -> Assert.That(y, Is.EqualTo x, sprintf "%A %A %d" x y i))
+           (fun i (x, y) -> Assert.That(y |> Option.map toName, x |> Is.EqualTo, sprintf "%A %A %d" x (y |> Option.map toFullName) i))
       // Disambiguation checks
       let g3 = methods.[10]
       Assert.That(methods
