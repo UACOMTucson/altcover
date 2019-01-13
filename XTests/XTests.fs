@@ -139,8 +139,10 @@ module XTests =
   let CollectParamsCanBeValidated() =
     let test = { Primitive.CollectParams.Create() with Threshold = "23"
                                                        CommandLine = null }
-    let scan = (FSApi.CollectParams.Primitive test).Validate(false)
+    let instance = FSApi.CollectParams.Primitive test
+    let scan = instance.Validate(false)
     Assert.Equal(0, scan.Length)
+    Assert.NotNull(instance.GetHashCode())
     Assert.Equal<string list>( ["Runner"; "-t"; "23"; "--collect"],
                  (FSApi.CollectParams.Primitive test) |> FSApi.Args.Collect)
 
@@ -191,8 +193,10 @@ module XTests =
                                               CallContext = [| "[Fact]" |]
                                               PathFilter = [| "ok" |] }
 
-    let scan = (FSApi.PrepareParams.Primitive test).Validate()
+    let instance = FSApi.PrepareParams.Primitive test
+    let scan = instance.Validate()
     Assert.Equal(0, scan.Length)
+    Assert.NotNull(instance.GetHashCode())
     let rendered = (FSApi.PrepareParams.Primitive test) |> FSApi.Args.Prepare
     Assert.Equal<string list>(["-i"; here; "-o"; here
                                "-y"; here;
