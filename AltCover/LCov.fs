@@ -44,7 +44,10 @@ module internal LCov =
       | Recorder.ReportFormat.NCover ->
         report.Descendants(X "method")
         |> Seq.filter (fun m ->
+             m.Attribute(X "excluded").Value <> "true"
+             &&
              m.Descendants(X "seqpnt")
+             |> Seq.filter (fun s -> s.Attribute(X "excluded").Value <> "true")
              |> Seq.isEmpty
              |> not)
         |> Seq.groupBy
